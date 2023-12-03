@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.Scanner;
 
+
 public class managing {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/test_data";
