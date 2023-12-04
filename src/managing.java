@@ -22,6 +22,16 @@ public class managing {
                     insertRecord(scanner, connection);
                     break;
 
+                case "2":
+                case "retrieve":
+                    retrieveRecord(connection);
+                    break;
+
+                case "3":
+                case "update":
+                    updateRecord(scanner, connection);
+                    break;
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -170,6 +180,40 @@ public class managing {
         }
     }
 
+    private static void retrieveRecord(Connection connection) throws SQLException {
+        String joinSql = "SELECT b.title, b.volume, a.name_author, o.order_quantity " +
+                "FROM Books b " +
+                "JOIN Authors a ON b.id_author = a.id_author " +
+                "JOIN Orders o ON b.id_book = o.id_book";
+
+        System.out.println("Retrieving all books with authors and orders:");
+        try (PreparedStatement stmt = connection.prepareStatement(joinSql);
+             ResultSet resultSet = stmt.executeQuery()) {
+            while (resultSet.next()) {
+                String title = resultSet.getString("title");
+                int volume = resultSet.getInt("volume");
+                String author = resultSet.getString("name_author");
+                int orderQuantity = resultSet.getInt("order_quantity");
+                System.out.println("Title: " + title + ", Volume: " + volume + ", Author: " + author + ", Ordered: " + orderQuantity);
+            }
+        }
+    }
+
+    private static void updateRecord(Scanner scanner, Connection connection) throws SQLException {
+        System.out.println("Updating a book record.");
+        System.out.print("Enter the ID of the book you want to update: ");
+        int id = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter new title: ");
+        String title = scanner.nextLine();
+
+        String sql = "UPDATE Books SET title = ? WHERE id_book = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, title);
+            stmt.setInt(2, id);
+            int rowsUpdated = stmt.executeUpdate();
+            System.out.println(rowsUpdated + " rows updated.");
+        }
+    }
 
 
 }
