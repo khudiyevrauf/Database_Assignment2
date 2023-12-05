@@ -32,6 +32,14 @@ public class managing {
                     updateRecord(scanner, connection);
                     break;
 
+                case "4":
+                case "delete":
+                    deleteRecord(scanner, connection);
+                    break;
+
+                default:
+                    System.out.println("Please, choose a valid option.");
+                    break;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -215,5 +223,18 @@ public class managing {
         }
     }
 
+    private static void deleteRecord(Scanner scanner, Connection connection) throws SQLException {
+        System.out.println("Deleting a book record.");
+        System.out.print("Enter the ID of the book you want to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
+
+        String sql = "DELETE FROM Books WHERE id_book = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            int rowsDeleted = stmt.executeUpdate();
+            System.out.println(rowsDeleted + " rows deleted.");
+
+        }
+    }
 
 }
