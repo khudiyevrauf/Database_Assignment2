@@ -53,6 +53,7 @@ public class managing {
                     System.out.println("Please, choose a valid option.");
                     break;
             }
+            
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
