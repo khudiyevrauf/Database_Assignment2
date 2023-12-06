@@ -37,6 +37,18 @@ public class managing {
                     deleteRecord(scanner, connection);
                     break;
 
+                case "5":
+                case "table structure":
+                    displayStructureOfTables(connection);
+                    break;
+
+                case "6":
+                case "table info":
+                    System.out.print("Table name: ");
+                    String nameTable = scanner.nextLine();
+                    extractMetadata(connection, nameTable);
+                    break;
+
                 default:
                     System.out.println("Please, choose a valid option.");
                     break;
@@ -236,5 +248,68 @@ public class managing {
 
         }
     }
+
+    private static void extractMetadata(Connection conn, String specifiedTable) {
+        try {
+            showDetailsOfColumns(conn, specifiedTable);
+            showPrimaryKeysInfo(conn, specifiedTable);
+            showForeignKeysDetails(conn, specifiedTable);
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve metadata for table: " + specifiedTable);
+            e.printStackTrace();
+        }
+    }
+
+    private static void displayStructureOfTables(Connection conn) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+
+        try (ResultSet resultSet = metaData.getTables(null, null, null, new String[]{"TABLE"})) {
+            System.out.println("Overview of Database Tables:");
+            while (resultSet.next()) {
+                System.out.println("Table Name: " + resultSet.getString("TABLE_NAME") +
+                        ", Type: " + resultSet.getString("TABLE_TYPE"));
+            }
+        }
+    }
+
+    private static void showDetailsOfColumns(Connection conn, String specifiedTable) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+
+        System.out.println("Details of columns for " + specifiedTable + ":");
+        try (ResultSet resultSet = metaData.getColumns(null, null, specifiedTable, null)) {
+            while (resultSet.next()) {
+                System.out.println("Column: " + resultSet.getString("COLUMN_NAME") +
+                        ", Type: " + resultSet.getString("TYPE_NAME") +
+                        ", Size: " + resultSet.getInt("COLUMN_SIZE"));
+            }
+        }
+    }
+
+    private static void showPrimaryKeysInfo(Connection conn, String specifiedTable) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+
+        System.out.println("Primary Key Information for " + specifiedTable + ":");
+        try (ResultSet resultSet = metaData.getPrimaryKeys(null, null, specifiedTable)) {
+            while (resultSet.next()) {
+                System.out.println("Column: " + resultSet.getString("COLUMN_NAME") +
+                        ", Key Name: " + resultSet.getString("PK_NAME"));
+            }
+        }
+    }
+
+    private static void showForeignKeysDetails(Connection conn, String specifiedTable) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+
+        System.out.println("Foreign Key Constraints in " + specifiedTable + ":");
+        try (ResultSet resultSet = metaData.getImportedKeys(null, null, specifiedTable)) {
+            while (resultSet.next()) {
+                System.out.println("FK Name: " + resultSet.getString("FK_NAME") +
+                        ", FK Column: " + resultSet.getString("FKCOLUMN_NAME") +
+                        ", Reference Table: " + resultSet.getString("PKTABLE_NAME") +
+                        ", Reference Column: " + resultSet.getString("PKCOLUMN_NAME"));
+            }
+        }
+    }
+
 
 }
